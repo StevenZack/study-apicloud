@@ -11,15 +11,16 @@
 
 <body id='body'>
 </body>
-
+<div style="width: 100%;display: flex;flex-direction: column;align-items: flex-end;padding: 4px;"><u onclick="openDM()">下载管理</u></div>
 <div type="text/html" id="template">
     <section v-for="(v,cindex) in Videos" class="aui-content">
-            <div class="aui-card-list aui-border-t aui-border-b" tapmode v-on:click="fnPlayVideo(cindex)">
+            <div class="aui-card-list aui-border-t aui-border-b" tapmode >
                 <div class="aui-card-list-content">
-                    <img src="http://img1.imgtn.bdimg.com/it/u=1818152096,1217327741&fm=27&gp=0.jpg">
+                    <img src="http://img1.imgtn.bdimg.com/it/u=1818152096,1217327741&fm=27&gp=0.jpg" v-on:click="fnPlayVideo(cindex)">
                 </div>
-                <div style="display: flex;flex-direction: column;align-items: center;" class="aui-card-list-header aui-padded-t-5 aui-padded-b-5">
-                    {{v.Title}}
+                <div style="display: flex;flex-direction: row;align-items: center;padding: 4px;" >
+                    <div style="flex-grow: 1">{{v.Title}}</div>
+                    <div v-on:click="downloadMe(cindex)"><u>下载</u></div>
                 </div>
             </div>
     </section>
@@ -27,6 +28,27 @@
 <script type="text/javascript" src="../script/api.js"></script>
 <script type="text/javascript" src="../script/vue.min.js"></script>
 <script type="text/javascript">
+    function randomString(len) {
+    　　len = len || 32;
+    　　var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';    /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
+    　　var maxPos = $chars.length;
+    　　var pwd = '';
+    　　for (i = 0; i < len; i++) {
+    　　　　pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+    　　}
+    　　return pwd;
+    }
+    function openDM() {
+        var downloadManager = api.require('downloadManager');
+        downloadManager.openManagerView({
+            title: '下载管理'
+        }, function(ret, err) {
+            if (ret) {
+            } else {
+                alert(JSON.stringify(err));
+            }
+        });
+    }
     function updateData() {
         api.ajax({
             url: 'http://101.200.54.63:9898/vlist',
@@ -68,6 +90,27 @@
                           /////  alert(JSON.stringify(ret));
                         } else {
                             //alert(JSON.stringify(err));
+                        }
+                    });
+                },
+                downloadMe:function(cindex) {
+                    var fileName=window.app.Videos[cindex].Title
+                    if (!fileName||fileName=='') {
+                        fileName=randomString()
+                    }
+                    var downloadManager = api.require('downloadManager');
+                    downloadManager.enqueue({
+                        url: window.app.Videos[cindex].Url,
+                        savePath: '/storage/emulated/0/1/'+fileName+'.mp4',
+                        cache: true,
+                        allowResume: true,
+                        title: fileName,
+                        networkTypes: 'all'
+                    }, function(ret, err) {
+                        if (ret) {
+                            openDM()
+                        } else {
+                            alert(JSON.stringify(err));
                         }
                     });
                 }
