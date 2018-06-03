@@ -1,0 +1,80 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,aItemress=no">
+    <title>AUI快速完成布局</title>
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+</head>
+
+<body id='body'>
+</body>
+
+<div type="text/html" id="template">
+    <section v-for="(v,cindex) in Videos" class="aui-content">
+            <div class="aui-card-list aui-border-t aui-border-b" tapmode v-on:click="fnPlayVideo(cindex)">
+                <div class="aui-card-list-content">
+                    <img src="http://img1.imgtn.bdimg.com/it/u=1818152096,1217327741&fm=27&gp=0.jpg">
+                </div>
+                <div style="display: flex;flex-direction: column;align-items: center;" class="aui-card-list-header aui-padded-t-5 aui-padded-b-5">
+                    {{v.Title}}
+                </div>
+            </div>
+    </section>
+</div>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/vue.min.js"></script>
+<script type="text/javascript">
+    function updateData() {
+        api.ajax({
+            url: 'http://101.200.54.63:9898/vlist',
+            method: 'get',
+            data: {
+                values: { 
+                }
+            }
+        }, function(ret, err) {
+            if (ret) {
+                window.app.Videos=ret.Videos
+            } else {
+                alert(JSON.stringify(err));
+            }
+        });
+    }
+    apiready = function() {
+        videoPlayer = api.require('videoPlayer');
+        api.addEventListener({name:'viewappear'}, function (ret, err) {
+          updateData()
+        })
+        window.app=new Vue({
+            el:'#template',
+            data:{
+                Videos:[],
+                fnPlayVideo:function(cindex) {
+                    //调用视频模块播放视频：
+                    videoPlayer.play({
+                        texts: {
+                            head: {
+                                title: window.app.Videos[cindex].Title
+                            }
+                        },
+                        path: window.app.Videos[cindex].Url, //（可选项）字符串类型；文档的路径，支持网络和本地（fs://）路径；默认：未传值时不播放
+                        //在 android 平台上不支持 widget://
+                        autoPlay: true //（可选项）布尔类型；打开时是否自动播放；默认：true（自动播放）
+                    }, function(ret, err) {
+                        if (ret) {
+                          /////  alert(JSON.stringify(ret));
+                        } else {
+                            //alert(JSON.stringify(err));
+                        }
+                    });
+                }
+            }
+        })
+        updateData()
+    }
+</script>
+
+</html>

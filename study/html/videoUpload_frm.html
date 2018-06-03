@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
+    />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+</head>
+
+<body>
+    <header class="aui-bar aui-bar-nav" id="aui-header">
+        <a class="aui-btn aui-pull-left" tapmode onclick="api.closeWin()">
+            <span class="aui-iconfont aui-icon-left"></span>
+        </a>
+        <div class="aui-title">上传视频</div>
+    </header>
+        <p class="aui-text-center aui-margin-t-15">视频发布</p>
+    <section class="aui-content-padded">
+        <input type="text" name="title" id="title" placeholder="视频标题">
+    </section>
+    <section class="aui-content-padded">
+        <div class="aui-row aui-row-padded">
+            <div class="aui-col-xs-4 add-photos" tapmode onclick="fnSelectVideo(this)">
+                <div class="aui-border aui-text-center">
+                    <i class="aui-iconfont aui-icon-plus"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="aui-content-padded aui-clearfix">
+        <div class="aui-info">
+            <div class="aui-info-item aui-padded-r-10" style="width: 13rem">
+            </div>
+        </div>
+        <div class="aui-btn aui-btn-success aui-btn-block" tapmode onclick="fnCommit()">提交</div>
+    </section>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+    function fnSelectVideo(me) {
+        api.getPicture({
+            sourceType: 'library',
+            mediaValue: 'video',
+            destinationType: 'url',
+        }, function(ret, err) {
+            if (ret) {
+                me.innerText=ret.data
+                window.videoUrl=ret.data
+            } else {
+                alert(JSON.stringify(err));
+            }
+        });
+    }
+    function fnCommit() {
+        var title=document.getElementById('title').value
+        if (!window.videoUrl) {
+            alert('请先选择视频')
+            return
+        }
+        api.ajax({
+            url: 'http://101.200.54.63:9898/upload',
+            method: 'post',
+            data: {
+                values: { 
+                    title: title
+                },
+                files: { 
+                    video: window.videoUrl
+                }
+            }
+        }, function(ret, err) {
+            if (ret) {
+                alert(JSON.stringify(ret).indexOf("OK")>-1?'OK':ret.body);
+            } else {
+                alert(JSON.stringify(err).indexOf('OK')>-1?'OK':err.msg);
+            }
+            api.closeWin()
+        });
+    }
+    apiready = function () {
+        api.parseTapmode();
+        var header = $api.byId('aui-header');
+        $api.fixStatusBar(header);
+
+    };
+</script>
+
+</html>

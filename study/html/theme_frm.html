@@ -1,0 +1,110 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>AUI快速完成布局</title>
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+    <style type="text/css">
+        .aui-list .aui-list-item-media {
+            width: 3rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cont">
+    </div>
+</body>
+
+<script type="text/html" id="text1">
+    <section class="aui-content">
+        <% for(i in ret) {%>
+            <ul class="aui-list aui-media-list">
+                <li class="aui-list-item">
+                    <div class="aui-media-list-item-inner">
+                        <div class="aui-list-item-media">
+                            <img src="../image/demo1.png" />
+                        </div>
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-text">
+                                <div class="aui-list-item-title" style="color:#4c5276">
+                                  <%=res[i].openId%>
+                                </div>
+                            </div>
+                            <div class="aui-list-item-text" style="color:#333;">
+                                <%=res[i].title%>
+                            </div>
+                            <div class="aui-list-item-text">
+                                <div class="aui-row-padded" style="max-width:90%;">
+                                    <div class="aui-col-xs-4">
+                                        <img src="<%=host%><%=res[i].image0%>" />
+                                    </div>
+                                    <div class="aui-col-xs-4">
+                                        <img src="<%=host%><%=res[i].image1%>" />
+                                    </div>
+                                    <div class="aui-col-xs-4">
+                                        <img src="<%=host%><%=res[i].image2%>" />
+                                    </div>
+                                    <div class="aui-col-xs-4">
+                                        <img src="<%=host%><<%=res[i].image3%>" />
+                                    </div>
+                                    <div class="aui-col-xs-4">
+                                        <img src="<%=host%><%=res[i].image4%>" />
+                                    </div>
+                                    <div class="aui-col-xs-4">
+                                        <img src="<%=host%><%=res[i].image5%>" />
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="aui-margin-t-5 aui-font-size-12">
+                                <%=res[i].location%>
+                            </p>
+                            <div class="aui-info aui-font-size-12" style="padding-top:0; padding-bottom:0">
+                                <div class="aui-info-item">
+                                    <%=res[i].createtime%>
+                                </div>
+                                <div class="aui-info-item">
+                                    <i class="aui-iconfont aui-icon-comment" style="color:#4c5276"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <% } %>
+    </section>
+</script>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/template-native.js"></script>
+<script type="text/javascript">
+
+
+
+    function getData() {
+        host = $api.getStorage('host');
+        //请求数据：
+        api.ajax({
+            url: host + 'theme/findAll',
+            method: 'get'
+        }, function(ret, err) {
+            if (ret) {
+                var data = {
+                    'ret': ret,
+                    'host': host
+                };
+                html = template('template', data);
+                $api.dom('cont').innerHTML = html;
+       alert(JSON.stringify(ret[1].circle_title));
+            } else {
+                //  alert(JSON.stringify(err));
+            }
+        });
+
+        getData();
+    }
+</script>
+
+</html>

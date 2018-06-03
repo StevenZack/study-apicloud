@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <style>
+
+    </style>
+</head>
+<body>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+    apiready = function() {
+        var host = $api.getStorage('host');
+        var news_id = api.pageParam.news_id;
+        var images = [];
+        var texts = [];
+        //请求数据：
+       api.ajax({
+           url: host+'NewsServlet/findPhotoBrowserByNewsId?news_id='+news_id,
+           method: 'get'
+       },function(ret, err){
+           if (ret) {
+              //  alert( JSON.stringify( ret ) );
+             //遍历：
+             for(i in ret){
+                images.push(host+ret[i].image);
+                console.log(host+ret[i].image);
+                texts.push(ret[i].title);
+             }
+             var photoBS_tt = api.require('photoBrowserTouTiao');
+             photoBS_tt.open(function(ret, err) {
+                 if (ret.eventType == 'show') {
+                     photoBS_tt.setData({
+                         images: images,
+                         texts: texts,
+                         comment: 520,
+                         favorite: false
+                     });
+                 }
+             });
+           } else {
+               alert( JSON.stringify( err ) );
+           }
+       });
+
+    };
+</script>
+
+</html>

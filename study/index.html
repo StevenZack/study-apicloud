@@ -1,0 +1,299 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>底部导航</title>
+    <link rel="stylesheet" type="text/css" href="./css/api.css" />
+    <link rel="stylesheet" type="text/css" href="./css/style.css" />
+    <link rel="stylesheet" type="text/css" href="./css/aui.css" />
+    <style>
+        header {
+            background-color: #d13d39;
+        }
+
+        header ul li {
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            display: none;
+            color: #fff;
+            position: relative;
+            font-size: 15px;
+        }
+
+        header ul li.active {
+            display: block;
+        }
+        header ul li .flex-con.active {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        header #carema{
+          float:right;font-size:20px;margin-right:10px
+        }
+
+        #footer {
+            background-color: #f2f2f2;
+            font-size: 13px;
+        }
+
+        #footer ul li {
+            padding-top: 36px;
+            padding-bottom: 4px;
+            background: url() no-repeat center 12px;
+            background-size: 20px;
+            text-align: center;
+        }
+
+        #footer ul li.active {
+            color: #d13d39;
+        }
+
+        #footer ul li:nth-child(1) {
+            background-image: url(./image/footer/home.png);
+        }
+
+        #footer ul li:nth-child(2) {
+            background-image: url(./image/footer/video.png);
+        }
+
+        #footer ul li:nth-child(3) {
+            background-image: url(./image/footer/theme.png);
+        }
+
+        #footer ul li:nth-child(4) {
+            background-image: url(./image/footer/my.png);
+        }
+
+        #footer ul li:nth-child(1).active {
+            background-image: url(./image/footer/home_act.png);
+        }
+
+        #footer ul li:nth-child(2).active {
+            background-image: url(./image/footer/video_act.png);
+        }
+
+        #footer ul li:nth-child(3).active {
+            background-image: url(./image/footer/theme_act.png);
+        }
+
+        #footer ul li:nth-child(4).active {
+            background-image: url(./image/footer/my_act.png);
+        }
+
+        .flex-con {
+            overflow: auto
+        }
+    </style>
+</head>
+
+<body>
+    <div id="wrap" class="flex-wrap flex-vertical">
+        <header>
+            <ul>
+                <li class="border-b active">
+                    <div class="flex-wrap">
+                        <div class="flex-con active" tapmode>推荐</div>
+                        <div class="flex-con" tapmode>热点</div>
+                    </div>
+                </li>
+                <li class="border-b">视频
+                    <span class="aui-iconfont aui-icon-camera" id="carema" tapmode onclick="fnOpenVideoUploadWin()"></span>
+                </li>
+                <li class="border-b">话题 <span class="aui-iconfont aui-icon-camera" id="carema" tapmode onclick="fnOpenFabuWin()"></span></li>
+            </ul>
+        </header>
+        <div id="main" class="flex-con">
+        </div>
+        <div id="footer" class="border-t">
+            <ul class="flex-wrap">
+                <li tapmode class="flex-con active" onclick="fnOpenHomeFrameGroup()">首页</li>
+                <li tapmode class="flex-con" onclick="fnOpenVideoFrame()">视频</li>
+                <li tapmode class="flex-con" onclick="fnOpenThemeFrame()">话题</li>
+                <li tapmode class="flex-con" onclick="fnOpenMyFrame()">我的</li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>
+<script type="text/javascript" src="script/api.js"></script>
+<script type="text/javascript" src="script/zepto.min.js"></script>
+<script type="text/javascript">
+    var header;
+    var footer;
+    apiready = function() {
+        $api.setStorage('host', 'http://192.168.1.18:8080/NewsSystem/');
+        api.removeLaunchView();
+        funInitDom();
+        fnOpenHomeFrameGroup();
+        api.addEventListener({
+            name: 'keyback'
+        }, function(ret, err) {
+            api.closeWidget();
+        });
+    }
+    function fnOpenVideoUploadWin() {
+        api.openWin({
+            name:'videoUpload_frm',
+            url:'html/videoUpload_frm.html'
+        })
+    }
+    function fnOpenFabuWin(){
+      //判断是否登录：
+      var user = $api.getStorage('user');
+      if(user){
+          api.openWin({
+              name: 'fabu_win',
+              url: 'html/fabu_win.html'
+          });
+      }else{
+          api.confirm({
+              msg: '是否登录？',
+              buttons: ['确定', '取消']
+          }, function(ret, err){
+              if( ret ){
+                  if(ret.buttonIndex==1){
+                    fnOpenMyFrame();
+                    $('#footer li').eq(3).click().addClass('active').siblings().removeClass('active');
+                  }
+              }else{
+                   alert( JSON.stringify( err ) );
+              }
+          });
+      }
+    }
+    //拿到header和footer
+    function funInitDom() {
+        header = $api.dom('header');
+        footer = $api.dom('#footer');
+    }
+    //隐藏所有frame
+    function fnHiddenFrame() {
+        api.setFrameAttr({
+            name: 'video_frm',
+            hidden: 'true'
+        });
+        api.setFrameAttr({
+            name: 'theme_frm',
+            hidden: 'true'
+        });
+        api.setFrameAttr({
+            name: 'my_frm',
+            hidden: 'true'
+        });
+        api.setFrameGroupAttr({
+            name: 'home_group',
+            hidden: true
+        });
+    }
+
+
+    function fnOpenVideoFrame() {
+        fnHiddenFrame();
+        api.openFrame({
+            name: 'video_frm',
+            url: 'html/video_frm.html',
+            rect: {
+                x: 0,
+                y: header.offsetHeight,
+                w: 'auto',
+                h: api.winHeight - header.offsetHeight - footer.offsetHeight
+            },
+            bounces: true
+        });
+    }
+    function fnOpenThemeFrame() {
+        fnHiddenFrame();
+        api.openFrame({
+            name: 'theme_frm',
+            url: 'html/theme_frm.html',
+            rect: {
+                x: 0,
+                y: header.offsetHeight,
+                w: 'auto',
+                h: api.winHeight - header.offsetHeight - footer.offsetHeight
+            },
+            bounces: true
+        });
+    }
+    function fnOpenMyFrame() {
+        fnHiddenFrame();
+        api.openFrame({
+            name: 'my_frm',
+            url: 'html/my_frm.html',
+            rect: {
+                x: 0,
+                y: 0,
+                w: 'auto',
+                h: api.winHeight - footer.offsetHeight
+            },
+            bounces: false
+        });
+    }
+
+    //点击头部链接
+    $('header li div.flex-con').click(function() {
+        var index = $(this).index();
+        //点击后头部高亮
+        $('header li div.flex-con').eq(index).addClass('active').siblings().removeClass('active');
+        //frame组切换到相应的frame
+        api.setFrameGroupIndex({
+            name: 'home_group',
+            index: index,
+            scroll: true
+        });
+    });
+    //点击尾部链接
+    $('#footer li').click(function() {
+        var index = $(this).index();
+        //点击尾部高亮
+        $('#footer li').eq(index).addClass('active').siblings().removeClass('active');
+        //点击尾部，头部窗口条相应切换：
+        $('header li').eq(index).addClass('active').siblings().removeClass('active');
+    });
+
+
+    //打开首页frame组
+    function fnOpenHomeFrameGroup() {
+        fnHiddenFrame();
+        api.openFrameGroup({
+            name: 'home_group',
+            scrollEnabled: true,
+            rect: {
+                x: 0,
+                y: header.offsetHeight,
+                w: 'auto',
+                h: api.winHeight - header.offsetHeight - footer.offsetHeight
+            },
+            index: 0,
+            frames: [{
+                name: 'home_frm',
+                url: 'html/home_frm.html',
+                bounces: true,
+                pageParam: {
+                    'kind': 'tuijian'
+                }
+            }, {
+                name: 'home_frm',
+                url: 'html/home_frm.html',
+                bounces: true,
+                pageParam: {
+                    'kind': 'redian'
+                }
+            }]
+        }, function(ret, err) {
+            if (ret) {
+                //滑动frame组后，头部相应的高亮
+                $('header li div.flex-con').eq(ret.index).addClass('active').siblings().removeClass('active');
+                //  alert( JSON.stringify( ret ) );
+            } else {
+                //  alert( JSON.stringify( err ) );
+            }
+        });
+
+    }
+</script>

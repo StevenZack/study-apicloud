@@ -1,0 +1,166 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>AUI快速完成布局</title>
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+    <style type="text/css">
+        .aui-list .aui-list-item-media {
+            width: 6rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="aui-content" id="content">
+    </div>
+</body>
+
+<script type="text/html" id="test">
+    <% for(i in ret) {%>
+        <ul class="aui-list aui-media-list">
+            <% if(ret[i].type==1){%>
+                <li class="aui-list-item" tapmode onclick="fnOpenDetailWin(<%=ret[i].news_id%>)">
+
+                    <div class="aui-media-list-item-inner">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-text">
+                                <div class="aui-list-item-title aui-font-size-18">
+                                    <%=ret[i].title%>
+                                </div>
+                            </div>
+                            <div class="aui-info aui-padded-b-0">
+                                <div class="aui-info-item aui-font-size-12">
+                                    <img src="<%=host%><%=ret[i].image%>" style="width:1rem" class="aui-img-round" /><span class="aui-margin-l-5">AUI</span>
+                                </div>
+                                <div class="aui-info-item aui-font-size-12">
+                                    <%=ret[i].createTime%>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="aui-list-item-media">
+                            <img src="<%=host%><%=ret[i].image0%>">
+                        </div>
+                    </div>
+                </li>
+                <%}else if(ret[i].type==3){%>
+                    <li class="aui-list-item" onclick="fnOpenDetailWin(<%=ret[i].news_id%>)">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title aui-font-size-18">
+                                <%=ret[i].title%>
+                            </div>
+                            <div class="aui-row aui-row-padded aui-margin-t-5">
+                                <div class="aui-col-xs-4">
+                                    <img src="<%=host%><%=ret[i].image0%>" />
+                                </div>
+                                <div class="aui-col-xs-4">
+                                    <img src="<%=host%><%=ret[i].image1%>" />
+                                </div>
+                                <div class="aui-col-xs-4">
+                                    <img src="<%=host%><%=ret[i].image2%>" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="aui-info  aui-padded-t-0 aui-padded-r-15">
+                            <div class="aui-info-item aui-font-size-12">
+                                <img src="<%=host%><%=ret[i].image%>" style="width:1rem" class="aui-img-round" />
+                                <span class="aui-margin-l-5"><%=ret[i].publisher_title%></span>
+                            </div>
+                        </div>
+                    </li>
+                    <%}else if(ret[i].type==2){%>
+                        <li class="aui-list-item" onclick="fnOpenPhotoBrowser(<%=ret[i].news_id%>)">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-title aui-font-size-18">
+                                    <%=ret[i].title%>
+                                </div>
+                                <div class="aui-row aui-row-padded aui-margin-t-5">
+                                    <div class="aui-col-xs-12">
+                                        <img src="<%=host%><%=ret[i].image0%>" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="aui-info  aui-padded-t-0 aui-padded-r-15">
+                                <div class="aui-info-item aui-font-size-12">
+                                    <img src="<%=host%><%=ret[i].image%>" style="width:1rem" class="aui-img-round" />
+                                    <span class="aui-margin-l-5"><%=ret[i].publisher_title%></span>
+                                </div>
+                            </div>
+                        </li>
+                        <%}%>
+        </ul>
+        <% } %>
+</script>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/template-native.js"></script>
+<script type="text/javascript">
+    function fnOpenPhotoBrowser(news_id) {
+        api.openWin({
+            name: 'photo_browser_win',
+            url: 'photo_browser_win.html',
+            pageParam: {
+                'news_id': news_id
+            }
+        });
+    }
+
+    function fnOpenDetailWin(news_id) {
+        //打开详情页：
+        api.openWin({
+            name: 'detail_win',
+            url: 'detail_win.html',
+            pageParam: {
+                'news_id': news_id
+            }
+        });
+    }
+    apiready = function() {
+        api.showProgress({
+            style: 'default',
+            animationType: 'fade',
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+        api.setRefreshHeaderInfo({
+            visible: true,
+            loadingImg: 'widget://image/refresh.png',
+            bgColor: '#ccc',
+            textColor: '#fff',
+            textDown: '下拉刷新...',
+            textUp: '松开刷新...',
+        }, function(ret, err) {
+            getData();
+        });
+
+        kind = api.pageParam.kind
+        host = $api.getStorage('host');
+
+        function getData() {
+            //请求数据：
+            api.ajax({
+                url: host + 'NewsServlet/findAllByKind?kind=' + kind,
+                method: 'get'
+            }, function(ret, err) {
+                if (ret) {
+                    var data = {
+                        'ret': ret,
+                        'host': host
+                    };
+                    var html_str = template('test', data);
+                    $api.dom('#content').innerHTML = html_str;
+                    api.hideProgress();
+                    api.refreshHeaderLoadDone();
+                } else {
+                    //  alert( JSON.stringify( err ) );
+                }
+            });
+        }
+        getData();
+    }
+</script>
+
+</html>
